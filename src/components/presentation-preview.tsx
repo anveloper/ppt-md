@@ -40,8 +40,12 @@ export default function PresentationPreview({
           const targetSvg = svgs[currentSlide - 1] as HTMLElement;
 
           if (targetSvg) {
-            // 컨테이너의 padding(32px)을 고려하여 스크롤
-            const targetTop = targetSvg.offsetTop - 32; // padding-top 제외
+            // getBoundingClientRect를 사용하여 정확한 위치 계산
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const targetRect = targetSvg.getBoundingClientRect();
+
+            // 현재 스크롤 위치 + 타겟의 상대 위치 - padding(32px)
+            const targetTop = containerRef.current.scrollTop + (targetRect.top - containerRect.top) - 32;
 
             containerRef.current.scrollTo({
               top: targetTop,

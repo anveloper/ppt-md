@@ -51,13 +51,35 @@ function App() {
   const handleCursorChange = (lineNumber: number) => {
     const lines = markdown.split("\n");
     let slideNumber = 1;
+    let inFrontmatter = false;
+    let frontmatterEnded = false;
+
+    console.log('=== Cursor Change Debug ===');
+    console.log('lineNumber:', lineNumber);
 
     for (let i = 0; i < lineNumber && i < lines.length; i++) {
-      if (lines[i].trim() === "---") {
-        slideNumber++;
+      const trimmedLine = lines[i].trim();
+
+      // frontmatter 처리
+      if (trimmedLine === "---") {
+        if (!inFrontmatter && !frontmatterEnded && i === 0) {
+          // frontmatter 시작
+          inFrontmatter = true;
+          console.log(`Line ${i+1}: frontmatter START`);
+        } else if (inFrontmatter && !frontmatterEnded) {
+          // frontmatter 끝
+          inFrontmatter = false;
+          frontmatterEnded = true;
+          console.log(`Line ${i+1}: frontmatter END`);
+        } else if (frontmatterEnded) {
+          // 실제 슬라이드 구분자
+          slideNumber++;
+          console.log(`Line ${i+1}: slide separator -> slideNumber = ${slideNumber}`);
+        }
       }
     }
 
+    console.log('Final slideNumber:', slideNumber);
     setCurrentSlide(slideNumber);
   };
 
