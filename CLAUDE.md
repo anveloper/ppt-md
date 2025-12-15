@@ -166,6 +166,13 @@ src/
 └── App.tsx         # 메인 애플리케이션
 ```
 
+### 파일명 규칙
+- **컴포넌트 파일**: 케밥케이스 사용 (예: `markdown-editor.tsx`, `presentation-preview.tsx`)
+- **훅 파일**: 케밥케이스 사용 (예: `use-markdown.ts`, `use-presentation.ts`)
+- **유틸리티 파일**: 케밥케이스 사용 (예: `format-date.ts`, `export-pdf.ts`)
+- **타입 파일**: 케밥케이스 사용 (예: `presentation-types.ts`)
+- **루트 파일**: PascalCase 또는 기본 이름 유지 (예: `App.tsx`, `main.tsx`)
+
 ## PR 리뷰 규칙
 
 1. **리뷰 체크리스트**
