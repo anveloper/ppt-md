@@ -163,15 +163,17 @@ src/
 ├── hooks/          # 커스텀 훅
 ├── utils/          # 유틸리티 함수
 ├── types/          # TypeScript 타입 정의
-└── App.tsx         # 메인 애플리케이션
+├── app.tsx         # 메인 애플리케이션
+└── main.tsx        # 진입점
 ```
 
 ### 파일명 규칙
-- **컴포넌트 파일**: 케밥케이스 사용 (예: `markdown-editor.tsx`, `presentation-preview.tsx`)
-- **훅 파일**: 케밥케이스 사용 (예: `use-markdown.ts`, `use-presentation.ts`)
-- **유틸리티 파일**: 케밥케이스 사용 (예: `format-date.ts`, `export-pdf.ts`)
-- **타입 파일**: 케밥케이스 사용 (예: `presentation-types.ts`)
-- **루트 파일**: PascalCase 또는 기본 이름 유지 (예: `App.tsx`, `main.tsx`)
+- **모든 파일**: 케밥케이스 사용
+  - 컴포넌트: `markdown-editor.tsx`, `presentation-preview.tsx`, `app.tsx`
+  - 훅: `use-markdown.ts`, `use-presentation.ts`
+  - 유틸리티: `format-date.ts`, `export-pdf.ts`
+  - 타입: `presentation-types.ts`
+- **예외**: 진입점 파일은 기본 이름 유지 (`main.tsx`, `index.html`)
 
 ## PR 리뷰 규칙
 
