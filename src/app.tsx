@@ -2,6 +2,8 @@ import { useState } from "react";
 import MarkdownEditor from "./components/markdown-editor";
 import PresentationPreview from "./components/presentation-preview";
 import ThemeSelector from "./components/theme-selector";
+import FullscreenButton from "./components/fullscreen-button";
+import PresentationView from "./components/presentation-view";
 
 const defaultMarkdown = `---
 marp: true
@@ -39,12 +41,18 @@ function App() {
   const [markdown, setMarkdown] = useState(defaultMarkdown);
   const [theme, setTheme] = useState("default");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const handleThemeChange = (newTheme: string) => {
     setTheme(newTheme);
     // 마크다운의 theme 속성도 업데이트
     const updatedMarkdown = markdown.replace(/theme:\s*\w+/, `theme: ${newTheme}`);
     setMarkdown(updatedMarkdown);
+  };
+
+  // 프레젠테이션 모드 토글
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
   };
 
   // 커서 위치로부터 슬라이드 번호 계산
@@ -84,28 +92,43 @@ function App() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-white">
-      {/* Header */}
-      <header className="bg-linear-to-r from-blue-500 to-purple-600 text-white py-4 px-6 shadow-lg">
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold">MARP Presentation Editor</h1>
-          <ThemeSelector value={theme} onChange={handleThemeChange} />
-        </div>
-      </header>
+    <>
+      {/* 프레젠테이션 모드 */}
+      {isFullscreen ? (
+        <PresentationView
+          markdown={markdown}
+          theme={theme}
+          onClose={() => setIsFullscreen(false)}
+        />
+      ) : (
+        /* 편집 모드 */
+        <div className="flex flex-col h-screen bg-white">
+          {/* Header */}
+          <header className="bg-linear-to-r from-blue-500 to-purple-600 text-white py-4 px-6 shadow-lg">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold">MARP Presentation Editor</h1>
+              <div className="flex items-center gap-4">
+                <ThemeSelector value={theme} onChange={handleThemeChange} />
+                <FullscreenButton isFullscreen={isFullscreen} onClick={toggleFullscreen} />
+              </div>
+            </div>
+          </header>
 
-      {/* Editor and Preview */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Editor */}
-        <div className="w-1/2 border-r border-gray-200">
-          <MarkdownEditor value={markdown} onChange={setMarkdown} onCursorChange={handleCursorChange} />
-        </div>
+          {/* Editor and Preview */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* Left: Editor */}
+            <div className="w-1/2 border-r border-gray-200">
+              <MarkdownEditor value={markdown} onChange={setMarkdown} onCursorChange={handleCursorChange} />
+            </div>
 
-        {/* Right: Preview */}
-        <div className="w-1/2 bg-gray-50">
-          <PresentationPreview markdown={markdown} theme={theme} currentSlide={currentSlide} />
+            {/* Right: Preview */}
+            <div className="w-1/2 bg-gray-50">
+              <PresentationPreview markdown={markdown} theme={theme} currentSlide={currentSlide} />
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 }
 
