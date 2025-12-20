@@ -12,8 +12,10 @@ export default function PresentationView({
   theme = "default",
   onClose,
 }: PresentationViewProps) {
-  const [slides, setSlides] = useState<string[]>([]);
+  const [html, setHtml] = useState("");
+  const [css, setCss] = useState("");
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [totalSlides, setTotalSlides] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,36 +24,49 @@ export default function PresentationView({
     });
 
     try {
-      const { html, css } = marp.render(markdown);
-      console.log('MARP rendered HTML:', html);
-      console.log('MARP CSS:', css);
+      const { html: renderedHtml, css: renderedCss } = marp.render(markdown);
+      setHtml(renderedHtml);
+      setCss(renderedCss);
 
-      // HTML에서 각 슬라이드를 분리
+      // 슬라이드 개수 계산
       const parser = new DOMParser();
-      const doc = parser.parseFromString(html, "text/html");
-      const svgs = Array.from(doc.querySelectorAll("svg[data-marpit-svg]"));
-      console.log('Found SVGs:', svgs.length);
-
-      const slideHtmls = svgs.map((svg, idx) => {
-        const slideHtml = `<style>${css}</style>${svg.outerHTML}`;
-        console.log(`Slide ${idx}:`, slideHtml.substring(0, 200));
-        return slideHtml;
-      });
-      setSlides(slideHtmls);
-      console.log('Total slides set:', slideHtmls.length);
+      const doc = parser.parseFromString(renderedHtml, "text/html");
+      const svgs = doc.querySelectorAll("svg[data-marpit-svg]");
+      setTotalSlides(svgs.length);
     } catch (error) {
       console.error("MARP rendering error:", error);
     }
   }, [markdown, theme]);
 
+  // 브라우저 전체화면 모드 활성화
+  useEffect(() => {
+    const enterFullscreen = async () => {
+      try {
+        await document.documentElement.requestFullscreen();
+      } catch (error) {
+        console.error("Fullscreen error:", error);
+      }
+    };
+
+    enterFullscreen();
+
+    // 컴포넌트 언마운트 시 전체화면 해제
+    return () => {
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
+    };
+  }, []);
+
   // 키보드 이벤트 처리
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        // ESC는 브라우저 전체화면도 종료하므로 onClose만 호출
         onClose();
       } else if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
-        setCurrentSlideIndex((prev) => Math.min(prev + 1, slides.length - 1));
+        setCurrentSlideIndex((prev) => Math.min(prev + 1, totalSlides - 1));
       } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         setCurrentSlideIndex((prev) => Math.max(prev - 1, 0));
@@ -60,32 +75,46 @@ export default function PresentationView({
         setCurrentSlideIndex(0);
       } else if (e.key === "End") {
         e.preventDefault();
-        setCurrentSlideIndex(slides.length - 1);
+        setCurrentSlideIndex(totalSlides - 1);
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [slides.length, onClose]);
+  }, [totalSlides, onClose]);
 
   return (
     <div className="fixed inset-0 bg-black z-50 flex items-center justify-center">
       {/* 슬라이드 컨테이너 */}
       <div
         ref={containerRef}
-        className="w-full h-full flex items-center justify-center p-8"
+        className="w-full h-full flex items-center justify-center p-8 overflow-hidden"
       >
+        <style>{css}</style>
         <style>{`
-          .presentation-slide svg[data-marpit-svg] {
-            width: 100%;
-            height: 100%;
+          .presentation-container {
+            width: 100dvw;
+            height: 100dvh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .presentation-container svg[data-marpit-svg] {
+            display: none;
+          }
+          .presentation-container svg[data-marpit-svg]:nth-child(${currentSlideIndex + 1}) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100dvw;
+            height: 100dvh;
             max-width: 100%;
             max-height: 100%;
           }
         `}</style>
         <div
-          className="presentation-slide w-full h-full flex items-center justify-center"
-          dangerouslySetInnerHTML={{ __html: slides[currentSlideIndex] || "" }}
+          className="presentation-container"
+          dangerouslySetInnerHTML={{ __html: html }}
         />
       </div>
 
@@ -105,13 +134,13 @@ export default function PresentationView({
 
         {/* 슬라이드 카운터 */}
         <div className="px-4 py-2 bg-white/10 text-white rounded-full backdrop-blur-sm text-sm font-medium">
-          {currentSlideIndex + 1} / {slides.length}
+          {currentSlideIndex + 1} / {totalSlides}
         </div>
 
         {/* 다음 버튼 */}
         <button
-          onClick={() => setCurrentSlideIndex((prev) => Math.min(prev + 1, slides.length - 1))}
-          disabled={currentSlideIndex === slides.length - 1}
+          onClick={() => setCurrentSlideIndex((prev) => Math.min(prev + 1, totalSlides - 1))}
+          disabled={currentSlideIndex === totalSlides - 1}
           className="p-3 bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed text-white rounded-full backdrop-blur-sm transition-colors"
           title="다음 슬라이드 (→)"
         >
