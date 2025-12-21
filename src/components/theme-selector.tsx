@@ -11,15 +11,15 @@ const MARP_THEMES = [
 
 export default function ThemeSelector({ value, onChange }: ThemeSelectorProps) {
   return (
-    <div className="flex items-center gap-2">
-      <label htmlFor="theme-select" className="text-sm font-medium text-white">
+    <div className="flex items-center gap-1.5">
+      <label htmlFor="theme-select" className="text-xs text-white">
         테마:
       </label>
       <select
         id="theme-select"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="px-3 py-1.5 text-sm border border-white/20 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-white bg-white/10 text-white backdrop-blur-sm cursor-pointer"
+        className="px-2 py-1 text-xs border border-white/20 rounded focus:outline-none bg-white/10 text-white cursor-pointer"
       >
         {MARP_THEMES.map((theme) => (
           <option key={theme.value} value={theme.value} className="text-gray-900">

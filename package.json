@@ -13,6 +13,7 @@
   "dependencies": {
     "@marp-team/marp-core": "^4.2.0",
     "@monaco-editor/react": "^4.7.0",
+    "jspdf": "^3.0.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
